@@ -1,10 +1,6 @@
 # Ignore OS files
 .DS_Store
 
-# Only keep important files in the `prj`directory
-prj/*
-!prj/OptoHybrid_v2.xise
-
 *.bit
 *.mcs
 *.*bak
@@ -28,7 +24,6 @@ _ngo
 _xmsgs
 *.xmsgs
 
-
 !*.xpr
 !*.xise
 !*.tcl
@@ -40,10 +35,10 @@ _xmsgs
 *.o
 .Xil
 
-src/ip_cores/*
+ip_cores/*
 *.xcix
 *.xci
-!src/ip_cores/*.xco
+!ip_cores/*.xco
 tags
 
 iseconfig
