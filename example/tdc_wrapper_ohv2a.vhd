@@ -216,8 +216,8 @@ begin
         calibrate_i   => calibrate,
         calibrating_o => calibrating,
 
-        window_mask => window_mask,
-        vfat_mask_i => sbit_mask_i,
+        window_mask_i => window_mask,
+        vfat_mask_i   => sbit_mask_i,
 
         trigger_i   => trigger_i,
         sbits_i     => sbits_or,

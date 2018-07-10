@@ -42,8 +42,8 @@ entity tdc is
         calibrate_i   : in std_logic;
         calibrating_o : out std_logic;
 
-        window_mask   : in std_logic_vector(255 downto 0);
-        vfat_mask_i : in std_logic_vector(23 downto 0);            
+        window_mask_i : in std_logic_vector(255 downto 0);
+        vfat_mask_i   : in std_logic_vector(23 downto 0);            
 
         -- Inputs
         trigger_i   : in std_logic;
@@ -208,7 +208,7 @@ begin
             reset_i => reset,
             
             sbits_i       => sbits_i(I),
-            window_mask_i => window_mask,
+            window_mask_i => window_mask_i,
             
             position_o    => sbits_position(I),
             valid_o       => sbits_valid(I)
