@@ -32,13 +32,13 @@ use ieee.math_real.all;
 entity sbits_delay is
     generic (
         g_LATENCY : integer := 2 );
-    port ( 
+    port (
         clk_i   : in std_logic;
         reset_i : in std_logic;
-        
+
         sbits_i       : in std_logic;
         window_mask_i : in std_logic_vector(255 downto 0);
-        
+
         position_o : out std_logic_vector(7 downto 0);
         valid_o    : out std_logic );
 end entity;
@@ -54,31 +54,31 @@ architecture behavioral of sbits_delay is
         type pos_s0_t is array(127 downto 0) of std_logic_vector(0 downto 0);
         variable pos_s0 : pos_s0_t;
         variable out_s0 : std_logic_vector(127 downto 0);
-        
+
         type pos_s1_t is array(63 downto 0) of std_logic_vector(1 downto 0);
         variable pos_s1 : pos_s1_t;
         variable out_s1 : std_logic_vector(63 downto 0);
-        
+
         type pos_s2_t is array(31 downto 0) of std_logic_vector(2 downto 0);
         variable pos_s2 : pos_s2_t;
         variable out_s2 : std_logic_vector(31 downto 0);
-        
+
         type pos_s3_t is array(15 downto 0) of std_logic_vector(3 downto 0);
         variable pos_s3 : pos_s3_t;
         variable out_s3 : std_logic_vector(15 downto 0);
-        
+
         type pos_s4_t is array(7 downto 0) of std_logic_vector(4 downto 0);
         variable pos_s4 : pos_s4_t;
         variable out_s4 : std_logic_vector(7 downto 0);
-        
+
         type pos_s5_t is array(3 downto 0) of std_logic_vector(5 downto 0);
         variable pos_s5 : pos_s5_t;
         variable out_s5 : std_logic_vector(3 downto 0);
-        
+
         type pos_s6_t is array(1 downto 0) of std_logic_vector(6 downto 0);
         variable pos_s6 : pos_s6_t;
         variable out_s6 : std_logic_vector(1 downto 0);
-        
+
         -- Outputs
         variable pos_out : std_logic_vector(7 downto 0);
         variable valid   : std_logic;
@@ -87,43 +87,43 @@ architecture behavioral of sbits_delay is
             pos_s0(I) := "0" when input(2*I) = '1' else "1";
             out_s0(I) := input(2*I) or input(2*I + 1);
         end loop;
-        
+
         for I in 63 downto 0 loop
             pos_s1(I) := '0' & pos_s0(2*I) when out_s0(2*I) = '1' else '1' & pos_s0(2*I+1);
             out_s1(I) := out_s0(2*I) or out_s0(2*I + 1);
         end loop;
-        
+
         for I in 31 downto 0 loop
             pos_s2(I) := '0' & pos_s1(2*I) when out_s1(2*I) = '1' else '1' & pos_s1(2*I+1);
             out_s2(I) := out_s1(2*I) or out_s1(2*I + 1);
         end loop;
-        
+
         for I in 15 downto 0 loop
             pos_s3(I) := '0' & pos_s2(2*I) when out_s2(2*I) = '1' else '1' & pos_s2(2*I+1);
             out_s3(I) := out_s2(2*I) or out_s2(2*I + 1);
         end loop;
-        
+
         for I in 7 downto 0 loop
             pos_s4(I) := '0' & pos_s3(2*I) when out_s3(2*I) = '1' else '1' & pos_s3(2*I+1);
             out_s4(I) := out_s3(2*I) or out_s3(2*I + 1);
         end loop;
-        
+
         for I in 3 downto 0 loop
             pos_s5(I) := '0' & pos_s4(2*I) when out_s4(2*I) = '1' else '1' & pos_s4(2*I+1);
             out_s5(I) := out_s4(2*I) or out_s4(2*I + 1);
         end loop;
-        
+
         for I in 1 downto 0 loop
             pos_s6(I) := '0' & pos_s5(2*I) when out_s5(2*I) = '1' else '1' & pos_s5(2*I+1);
             out_s6(I) := out_s5(2*I) or out_s5(2*I + 1);
         end loop;
-        
+
         pos_out := '0' & pos_s6(0) when out_s6(0) = '1' else '1' & pos_s6(1);
         valid := out_s6(0) or out_s6(1);
-        
+
         return valid & pos_out;
     end function;
-    
+
     -- This function reverse a std_logic_vector
     function reverse_vector(input: std_logic_vector)
         return std_logic_vector
@@ -135,10 +135,10 @@ architecture behavioral of sbits_delay is
         end loop;
         return tmp;
     end function;
-    
+
     -- Shift register signals
     signal delayed_or : std_logic_vector(255 + g_LATENCY downto 0) := (others => '0');
-    
+
 begin
 
     shift_reg_p : process(clk_i)
@@ -152,14 +152,14 @@ begin
             end if; -- reset_i
         end if; -- rising_edge(clk_i)
     end process;
-    
+
     output_p : process(clk_i)
         variable windowed : std_logic_vector(255 downto 0);
         variable output   : std_logic_vector(8 downto 0);
     begin
         windowed := delayed_or(255 downto 0) and reverse_vector(window_mask_i);
         output   := priority256(windowed);
-        
+
         if rising_edge(clk_i) then
                 position_o <= output(7 downto 0);
                 valid_o    <= output(8);
@@ -167,3 +167,6 @@ begin
     end process;
 
 end behavioral;
+
+-- vim: set expandtab tabstop=4 shiftwidth=4:
+

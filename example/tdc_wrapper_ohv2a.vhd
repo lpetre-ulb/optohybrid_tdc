@@ -45,7 +45,7 @@ architecture behavioral of tdc_wrapper_ohv2a is
 
     -- Wishbone signals
     constant SIZE  : integer := 32;
-    
+
     signal wb_stb  : std_logic_vector(SIZE-1 downto 0);
     signal wb_we   : std_logic;
     signal wb_addr : std_logic_vector(31 downto 0);
@@ -152,7 +152,7 @@ begin
             end if;
         end process;
     end generate;
-	
+
     window_gen : for I in 0 to 31 generate
     begin
         window_mask(I*4)       <= window_reg(0)(I);
@@ -204,10 +204,10 @@ begin
     end generate;
 
     ---------
-	-- TDC --
-	---------
-	 tdc_inst : entity work.tdc
-	 port map(
+    -- TDC --
+    ---------
+    tdc_inst : entity work.tdc
+    port map(
         clk_1x_i => ref_clk_i,
         clk_8x_i => clk_8x_i,
 
@@ -223,11 +223,14 @@ begin
         sbits_i     => sbits_or,
 
         fifo_rden      => wb_stb(PACKET_ADDR + 23 downto PACKET_ADDR),
-		fifo_dout      => wb_send(PACKET_ADDR + 23 downto PACKET_ADDR),
+        fifo_dout      => wb_send(PACKET_ADDR + 23 downto PACKET_ADDR),
         fifo_valid     => wb_ack(PACKET_ADDR + 23 downto PACKET_ADDR),
-		fifo_underflow => wb_err(PACKET_ADDR + 23 downto PACKET_ADDR),
+        fifo_underflow => wb_err(PACKET_ADDR + 23 downto PACKET_ADDR),
 
         callut_addr_i => std_logic_vector(callut_addr),
         callut_data_o => callut_data );
 
 end behavioral;
+
+-- vim: set expandtab tabstop=4 shiftwidth=4:
+

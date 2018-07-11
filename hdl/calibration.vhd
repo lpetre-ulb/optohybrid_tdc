@@ -266,3 +266,6 @@ begin
         dinb  => "000000000000" );
 
 end behavioral;
+
+-- vim: set expandtab tabstop=4 shiftwidth=4:
+

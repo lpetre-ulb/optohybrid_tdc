@@ -29,7 +29,7 @@ use work.types_pkg.all;
 entity tdc is
     generic (
         g_LOC_X : integer := 64;
-		g_LOC_Y : integer := 60 );
+        g_LOC_Y : integer := 60 );
     port (
         -- Clocks
         clk_1x_i : in std_logic;
@@ -43,7 +43,7 @@ entity tdc is
         calibrating_o : out std_logic;
 
         window_mask_i : in std_logic_vector(255 downto 0);
-        vfat_mask_i   : in std_logic_vector(23 downto 0);            
+        vfat_mask_i   : in std_logic_vector(23 downto 0);
 
         -- Inputs
         trigger_i   : in std_logic;
@@ -54,7 +54,7 @@ entity tdc is
         fifo_dout      : out std32_array_t(23 downto 0);
         fifo_valid     : out std_logic_vector(23 downto 0);
         fifo_underflow : out std_logic_vector(23 downto 0);
-        
+
         -- Calibration LUT
         callut_addr_i : in std_logic_vector(8 downto 0);
         callut_data_o : out std_logic_vector(11 downto 0) );
@@ -62,7 +62,7 @@ end entity;
 
 architecture behavioral of tdc is
 
-    -- Reset signals    
+    -- Reset signals
     signal reset_sr  : std_logic_vector(9 downto 0) := (others => '0');
     signal reset     : std_logic := '0';
 
@@ -70,9 +70,9 @@ architecture behavioral of tdc is
     signal calib_pulse      : std_logic := '0';
     signal tdc_en           : std_logic := '1';
     signal calib_sel        : std_logic := '0';
-	signal tdc_fine_counter : std_logic_vector(8 downto 0) := "000000000";
+    signal tdc_fine_counter : std_logic_vector(8 downto 0) := "000000000";
     signal tdc_valid        : std_logic := '0';
-    
+
     -- CDC signals
     signal tdc_coarse_counter_resync : std_logic_vector(2 downto 0) := "000";
     signal tdc_fine_counter_resync   : std_logic_vector(8 downto 0) := "000000000";
@@ -80,7 +80,7 @@ architecture behavioral of tdc is
 
     -- Calibration signals
     signal calib_done : std_logic := '1';
-    
+
     signal tdc_coarse_counter_resync_d1 : std_logic_vector(2 downto 0) := "000";
     signal calib_coarse_counter         : std_logic_vector(2 downto 0) := "000";
     signal calib_fine_time              : std_logic_vector(11 downto 0) := "000000000000";
@@ -116,30 +116,30 @@ begin
     reset       <= reset_sr(0);
     resetting_o <= reset;
 
-	-----------------
-	-- TDC channel --
-	-----------------
+    -----------------
+    -- TDC channel --
+    -----------------
     calib_pulse_gen_inst : entity work.calibration_pulse_generator(xilinx_virtex6)
-	port map (
-		pulse_o => calib_pulse );
-    
-	tdc_channel_inst: entity work.tdc_channel
-	generic map (
-		g_LOC_X => g_LOC_X,
-		g_LOC_Y => g_LOC_Y )
-	port map (
-		clk_i   => clk_8x_i,
+    port map (
+        pulse_o => calib_pulse );
+
+    tdc_channel_inst: entity work.tdc_channel
+    generic map (
+        g_LOC_X => g_LOC_X,
+        g_LOC_Y => g_LOC_Y )
+    port map (
+        clk_i   => clk_8x_i,
         reset_i => reset,
-        
-		in_a_i    => trigger_i,
+
+        in_a_i    => trigger_i,
         calib_a_i => calib_pulse,
-        
+
         en_a_i        => tdc_en,
         calib_sel_a_i => calib_sel,
-		
-		valid_o                          => tdc_valid,
-		std_logic_vector(fine_counter_o) => tdc_fine_counter );
-    
+
+        valid_o                          => tdc_valid,
+        std_logic_vector(fine_counter_o) => tdc_fine_counter );
+
     --------------------
     -- TDC output CDC --
     --------------------
@@ -148,23 +148,23 @@ begin
         clk_1x_i => clk_1x_i,
         clk_8x_i => clk_8x_i,
         reset_i  => reset,
-        
+
         fine_counter_i => tdc_fine_counter,
         valid_i        => tdc_valid,
-        
+
         coarse_counter_o => tdc_coarse_counter_resync,
         fine_counter_o   => tdc_fine_counter_resync,
         valid_o          => tdc_valid_resync
     );
-    
+
     -----------------
-	-- Calibration --
-	-----------------
+    -- Calibration --
+    -----------------
     calibration_inst : entity work.calibration
     port map (
         clk_i   => clk_1x_i,
         reset_i => reset,
-        
+
         fine_counter_i => tdc_fine_counter_resync,
         valid_i        => tdc_valid_resync,
 
@@ -177,9 +177,9 @@ begin
 
         callut_addr_i => callut_addr_i,
         callut_data_o => callut_data_o );
-    
+
     calibrating_o <= not calib_done;
-    
+
     -- The coarse counter is not sent to the calibration entity, but
     -- must be delayed to take into account the latency induced by the
     -- conversion from fine_counter to a timestamp.
@@ -195,7 +195,7 @@ begin
             end if;
         end if;
     end process;
-    
+
     ---------------
     -- Per VFATs --
     ---------------
@@ -206,14 +206,13 @@ begin
         port map (
             clk_i   => clk_1x_i,
             reset_i => reset,
-            
+
             sbits_i       => sbits_i(I),
             window_mask_i => window_mask_i,
-            
+
             position_o    => sbits_position(I),
-            valid_o       => sbits_valid(I)
-        );
-        
+            valid_o       => sbits_valid(I) );
+
         -- Create packet
         process(clk_1x_i)
         begin
@@ -223,7 +222,7 @@ begin
                     packet_we(I) <= '0';
                 else
                     packet(I) <= "00000000" & sbits_valid(I) & sbits_position(I) & calib_coarse_counter & calib_fine_time;
-                    
+
                     if calib_valid = '1' and vfat_mask_i(I) = '0' then
                         packet_we(I) <= '1';
                     else
@@ -232,23 +231,25 @@ begin
                 end if; -- reset
             end if; -- rising_edge(clk_1x_i)
         end process;
-        
+
         -- FIFOs --
         fifo_inst : entity work.fifo512x32
-		port map (
+        port map (
             clk => clk_1x_i,
-			rst => reset,
-            
+            rst => reset,
+
             wr_en => packet_we(I),
             din   => packet(I),
             full  => open,
-			
-			rd_en     => fifo_rden(I),
-			dout      => fifo_dout(I),
+
+            rd_en     => fifo_rden(I),
+            dout      => fifo_dout(I),
             valid     => fifo_valid(I),
-			underflow => fifo_underflow(I),
-            empty     => open
-		);
+            underflow => fifo_underflow(I),
+            empty     => open );
     end generate;
 
 end architecture;
+
+-- vim: set expandtab tabstop=4 shiftwidth=4:
+

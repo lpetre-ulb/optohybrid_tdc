@@ -23,21 +23,20 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity tdc_cdc is
-port ( 
-    -- Clocks
-    clk_1x_i : in std_logic;
-    clk_8x_i : in std_logic;
-    reset_i  : in std_logic;
-    
-    -- Inputs
-    fine_counter_i : in std_logic_vector(8 downto 0);
-    valid_i        : in std_logic;
-    
-    -- Outputs
-    coarse_counter_o : out std_logic_vector(2 downto 0);
-    fine_counter_o   : out std_logic_vector(8 downto 0);
-    valid_o          : out std_logic
-);
+    port (
+        -- Clocks
+        clk_1x_i : in std_logic;
+        clk_8x_i : in std_logic;
+        reset_i  : in std_logic;
+
+        -- Inputs
+        fine_counter_i : in std_logic_vector(8 downto 0);
+        valid_i        : in std_logic;
+
+        -- Outputs
+        coarse_counter_o : out std_logic_vector(2 downto 0);
+        fine_counter_o   : out std_logic_vector(8 downto 0);
+        valid_o          : out std_logic );
 end tdc_cdc;
 
 architecture behavioral of tdc_cdc is
@@ -92,7 +91,7 @@ begin
             end if; -- reset_i
         end if; -- rising_edge(clk_8x_i)
     end process;
-    
+
     monostable_output_p : process(clk_8x_i, mono_ce)
     begin
         if rising_edge(clk_8x_i) and mono_ce = '1' then
@@ -101,7 +100,7 @@ begin
             valid          <= valid_i;
         end if;
     end process;
-    
+
     resync_p : process(clk_1x_i)
     begin
         if rising_edge(clk_1x_i) then
@@ -118,3 +117,6 @@ begin
     end process;
 
 end behavioral;
+
+-- vim: set expandtab tabstop=4 shiftwidth=4:
+
