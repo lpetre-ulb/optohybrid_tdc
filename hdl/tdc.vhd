@@ -28,8 +28,9 @@ use work.types_pkg.all;
 
 entity tdc is
     generic (
-        g_LOC_X : integer := 64;
-        g_LOC_Y : integer := 60 );
+        g_TAPS  : integer := 256;
+        g_LOC_X : integer := 0;
+        g_LOC_Y : integer := 0 );
     port (
         -- Clocks
         clk_1x_i : in std_logic;
@@ -125,6 +126,7 @@ begin
 
     tdc_channel_inst: entity work.tdc_channel
     generic map (
+        g_TAPS  => g_TAPS,
         g_LOC_X => g_LOC_X,
         g_LOC_Y => g_LOC_Y )
     port map (
